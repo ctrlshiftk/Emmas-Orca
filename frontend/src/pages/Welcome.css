@@ -1,0 +1,135 @@
+.welcome-shell {
+  min-height: 100vh;
+  margin: 0;
+  padding: 32px 20px 48px;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  box-sizing: border-box;
+  font-family:
+    Inter,
+    "SF Pro Text",
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  color: #193347;
+  background:
+    radial-gradient(1000px 520px at 10% -8%, rgba(108, 191, 255, 0.2), transparent),
+    radial-gradient(900px 500px at 100% 0%, rgba(84, 217, 190, 0.16), transparent),
+    #f8fbff;
+}
+
+.welcome-card {
+  width: 100%;
+  max-width: 480px;
+  padding: 28px 24px 32px;
+  background: rgba(255, 255, 255, 0.94);
+  border: 1px solid rgba(108, 171, 226, 0.28);
+  border-radius: 16px;
+  box-shadow: 0 14px 34px rgba(22, 69, 110, 0.12);
+}
+
+.welcome-eyebrow {
+  margin: 0 0 8px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  font-size: 12px;
+  color: #2b8ec7;
+}
+
+.welcome-title {
+  margin: 0 0 10px;
+  font-size: 28px;
+  line-height: 1.15;
+}
+
+.welcome-lead {
+  margin: 0 0 20px;
+  font-size: 15px;
+  line-height: 1.45;
+  color: rgba(27, 65, 96, 0.85);
+}
+
+.welcome-muted {
+  margin: 0 0 16px;
+  color: #3f6e95;
+}
+
+.welcome-error {
+  margin: 0 0 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(220, 80, 80, 0.1);
+  color: #8b2c2c;
+  font-size: 14px;
+}
+
+.welcome-list {
+  list-style: none;
+  margin: 0 0 20px;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.welcome-option {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid rgba(120, 188, 240, 0.35);
+  background: rgba(255, 255, 255, 0.9);
+  cursor: pointer;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease;
+}
+
+.welcome-option:hover {
+  border-color: rgba(70, 180, 235, 0.55);
+}
+
+.welcome-option.is-selected {
+  border-color: rgba(46, 140, 210, 0.65);
+  box-shadow: 0 0 0 2px rgba(70, 180, 235, 0.2);
+}
+
+.welcome-option input {
+  margin-top: 4px;
+  accent-color: #2b8ec7;
+}
+
+.welcome-option-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.welcome-option-name {
+  font-weight: 600;
+  font-size: 15px;
+}
+
+.welcome-option-pod {
+  font-size: 13px;
+  color: #3f6e95;
+}
+
+.welcome-cta {
+  width: 100%;
+  border: 0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  font-size: 16px;
+  font-weight: 700;
+  color: #ffffff;
+  background: linear-gradient(135deg, #46b4eb, #59a3ef);
+  cursor: pointer;
+}
+
+.welcome-cta:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}

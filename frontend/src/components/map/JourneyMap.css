@@ -1,0 +1,38 @@
+/* DivIcon head marker: no scale() — Leaflet applies zoom transforms on the icon; scaling the
+   child shifts the dot relative to the polyline endpoint. Pulse uses shadow + opacity only. */
+.leaflet-div-icon.journey-head-marker {
+  background: transparent !important;
+  border: none !important;
+  padding: 0 !important;
+  box-sizing: border-box;
+  position: relative;
+}
+
+.journey-head-marker .journey-head-dot-inner {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: #4eb8e8;
+  border: 2px solid #ffffff;
+  box-sizing: content-box;
+  /* Geographic anchor = center of icon box; this keeps the disk centered on the lat/lng */
+  transform: translate(-50%, -50%);
+  animation: journey-head-pulse-div 2.2s ease-in-out infinite;
+}
+
+@keyframes journey-head-pulse-div {
+  0%,
+  100% {
+    transform: translate(-50%, -50%);
+    opacity: 1;
+    box-shadow: 0 0 0 3px rgba(78, 184, 232, 0.45);
+  }
+  50% {
+    transform: translate(-50%, -50%);
+    opacity: 0.82;
+    box-shadow: 0 0 0 14px rgba(78, 184, 232, 0);
+  }
+}

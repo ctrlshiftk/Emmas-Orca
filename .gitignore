@@ -4,6 +4,7 @@
 .idea/
 
 # Python backend
+backend/*.db
 __pycache__/
 *.py[cod]
 *.pyo

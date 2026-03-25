@@ -1,9 +1,12 @@
 import { useEffect, useMemo, useState } from "react";
 
-import { fetchJourney, fetchOrcas, setFriendOrca } from "../api/client";
 import { JourneyMap } from "../components/map/JourneyMap";
-import type { JourneyPoint, OrcaProfile } from "../types";
-import "./App.css";
+import type { JourneyPoint, JourneyResponse } from "../types";
+
+type AppProps = {
+  initialJourney: JourneyResponse;
+  onResetFriendChoice: () => Promise<void>;
+};
 
 const ORCA_GIF_URL = "/orca-floating.png";
 
@@ -65,32 +68,21 @@ function FloatingOrca() {
   );
 }
 
-export function App() {
-  const [orcas, setOrcas] = useState<OrcaProfile[]>([]);
-  const [selectedOrca, setSelectedOrca] = useState<number | null>(null);
-  const [points, setPoints] = useState<JourneyPoint[]>([]);
+export function App({ initialJourney, onResetFriendChoice }: AppProps) {
+  const [points, setPoints] = useState<JourneyPoint[]>(initialJourney.points);
   const [playhead, setPlayhead] = useState(0);
   const [playing, setPlaying] = useState(false);
-  const [loading, setLoading] = useState(true);
+  const [confirmResetOpen, setConfirmResetOpen] = useState(false);
+  const [resetting, setResetting] = useState(false);
+  const [resetError, setResetError] = useState<string | null>(null);
+
+  const friendOrca = initialJourney.orca;
 
   useEffect(() => {
-    const boot = async () => {
-      setLoading(true);
-      const available = await fetchOrcas();
-      setOrcas(available);
-      if (available.length > 0) {
-        setSelectedOrca(available[0].id);
-        await setFriendOrca(available[0].id);
-        const journey = await fetchJourney();
-        setPoints(journey.points);
-      }
-      setLoading(false);
-    };
-    boot().catch((err) => {
-      console.error(err);
-      setLoading(false);
-    });
-  }, []);
+    setPoints(initialJourney.points);
+    setPlayhead(0);
+    setPlaying(false);
+  }, [initialJourney]);
 
   const shownPoints = useMemo(() => {
     if (!points.length) return [];
@@ -104,19 +96,7 @@ export function App() {
     }
     return total;
   }, [shownPoints]);
-  const activeOrca = useMemo(
-    () => orcas.find((o) => o.id === selectedOrca) ?? null,
-    [orcas, selectedOrca]
-  );
   const latestPoint = shownPoints.length > 0 ? shownPoints[shownPoints.length - 1] : null;
-
-  const onSelectOrca = async (id: number) => {
-    setSelectedOrca(id);
-    await setFriendOrca(id);
-    const journey = await fetchJourney();
-    setPoints(journey.points);
-    setPlayhead(0);
-  };
 
   useEffect(() => {
     if (!playing || points.length < 2) return;
@@ -133,38 +113,85 @@ export function App() {
     return () => window.clearInterval(timer);
   }, [playing, points.length]);
 
+  const handleConfirmReset = async () => {
+    setConfirmResetOpen(false);
+    setResetError(null);
+    setResetting(true);
+    try {
+      await onResetFriendChoice();
+    } catch {
+      setResetError("Could not reset your choice. Try again.");
+    } finally {
+      setResetting(false);
+    }
+  };
+
   return (
     <>
       <FloatingOrca />
+      {confirmResetOpen && (
+        <div
+          className="confirm-dialog-backdrop"
+          role="presentation"
+          onClick={() => !resetting && setConfirmResetOpen(false)}
+        >
+          <div
+            className="confirm-dialog"
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="reset-friend-title"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <h2 id="reset-friend-title" className="confirm-dialog-title">
+              Reset friend orca?
+            </h2>
+            <p className="confirm-dialog-body">
+              You’ll return to the welcome screen and can pick a different orca. This clears your current
+              choice on the server.
+            </p>
+            <div className="confirm-dialog-actions">
+              <button
+                type="button"
+                className="confirm-dialog-btn confirm-dialog-btn-secondary"
+                disabled={resetting}
+                onClick={() => setConfirmResetOpen(false)}
+              >
+                Cancel
+              </button>
+              <button
+                type="button"
+                className="confirm-dialog-btn confirm-dialog-btn-danger"
+                disabled={resetting}
+                onClick={() => void handleConfirmReset()}
+              >
+                Reset choice
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
       <main className="app-shell">
         <header className="hero-card">
           <div>
             <p className="eyebrow">Emmas Orca</p>
             <h1>Track your pod journey</h1>
             <p className="muted">Explore sightings over time with a satellite map playback.</p>
+            <p className="muted subtle-footnote">
+              Your friend orca was set when you first opened the site—it stays the same on every device.
+            </p>
           </div>
-          <div className="control-group">
-            <label htmlFor="friend-orca">Friend orca</label>
-            <select
-              id="friend-orca"
-              value={selectedOrca ?? ""}
-              onChange={(e) => onSelectOrca(Number(e.target.value))}
-              disabled={loading || !orcas.length}
-            >
-              {orcas.map((o) => (
-                <option key={o.id} value={o.id}>
-                  {o.display_name} ({o.pod ?? "Unknown pod"})
-                </option>
-              ))}
-            </select>
+          <div className="friend-orca-summary">
+            <p className="friend-orca-summary-label">Your friend orca</p>
+            <p className="friend-orca-summary-name">{friendOrca.display_name}</p>
+            <p className="friend-orca-summary-pod">{friendOrca.pod ?? "Unknown pod"}</p>
           </div>
         </header>
 
         <section className="stats-grid">
           <article className="stat-card">
             <p className="label">Active profile</p>
-            <p className="value">{activeOrca?.display_name ?? "—"}</p>
-            <p className="subtle">{activeOrca?.pod ?? "Unknown pod"}</p>
+            <p className="value">{friendOrca.display_name}</p>
+            <p className="subtle">{friendOrca.pod ?? "Unknown pod"}</p>
           </article>
           <article className="stat-card">
             <p className="label">Sightings shown</p>
@@ -214,6 +241,22 @@ export function App() {
             onChange={(e) => setPlayhead(Number(e.target.value))}
           />
         </section>
+
+        <footer className="app-page-footer">
+          {resetError && (
+            <p className="reset-friend-error" role="alert">
+              {resetError}
+            </p>
+          )}
+          <button
+            type="button"
+            className="footer-reset-link"
+            disabled={resetting}
+            onClick={() => setConfirmResetOpen(true)}
+          >
+            {resetting ? "Resetting…" : "Change friend orca"}
+          </button>
+        </footer>
       </main>
     </>
   );

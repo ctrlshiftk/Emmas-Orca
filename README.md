@@ -15,8 +15,8 @@ docker compose up --build
 
 - `GET /health`
 - `GET /api/orcas`
-- `POST /api/me/friend-orca`
-- `GET /api/me/friend-orca/journey`
+- `POST /api/friend-orca` — body `{ "orca_profile_id": <id> }` (only while unset; **409** if already set)
+- `GET /api/friend-orca/journey`
 
 ## Notes
 

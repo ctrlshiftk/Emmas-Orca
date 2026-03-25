@@ -13,6 +13,12 @@
 
 body {
   margin: 0;
+  font-family:
+    Inter,
+    "SF Pro Text",
+    "Segoe UI",
+    Roboto,
+    sans-serif;
   background:
     radial-gradient(1300px 600px at 25% -10%, rgba(34, 118, 196, 0.35), transparent),
     radial-gradient(1000px 500px at 95% 0%, rgba(29, 181, 159, 0.22), transparent),
@@ -51,6 +57,44 @@ body {
   color: rgba(220, 240, 255, 0.8);
 }
 
+.subtle-footnote {
+  margin-top: 10px;
+  font-size: 13px;
+  max-width: 36em;
+}
+
+.app-loading,
+.app-bootstrap-banner {
+  margin: 0;
+  padding: 20px;
+  font-family:
+    Inter,
+    "SF Pro Text",
+    "Segoe UI",
+    Roboto,
+    sans-serif;
+  text-align: center;
+  color: #e8f4ff;
+}
+
+.app-loading {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background:
+    radial-gradient(1300px 600px at 25% -10%, rgba(34, 118, 196, 0.35), transparent),
+    radial-gradient(1000px 500px at 95% 0%, rgba(29, 181, 159, 0.22), transparent),
+    #07121f;
+}
+
+.app-bootstrap-banner {
+  background: rgba(255, 200, 80, 0.2);
+  border-bottom: 1px solid rgba(255, 220, 140, 0.35);
+  font-size: 14px;
+  color: rgba(255, 248, 220, 0.95);
+}
+
 .control-group {
   min-width: 280px;
   display: grid;
@@ -70,6 +114,145 @@ body {
   color: #ecf8ff;
   padding: 10px 12px;
   font-size: 14px;
+}
+
+.friend-orca-summary {
+  min-width: 240px;
+  text-align: right;
+}
+
+.friend-orca-summary-label {
+  margin: 0 0 6px;
+  font-size: 13px;
+  color: #b8dff8;
+}
+
+.friend-orca-summary-name {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 680;
+  line-height: 1.2;
+  color: #f1f9ff;
+}
+
+.friend-orca-summary-pod {
+  margin: 4px 0 0;
+  font-size: 14px;
+  color: rgba(220, 240, 255, 0.85);
+}
+
+.reset-friend-error {
+  margin: 0 0 8px;
+  font-size: 12px;
+  color: #ffb4a8;
+}
+
+.app-page-footer {
+  margin-top: 28px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(100, 140, 180, 0.12);
+  text-align: center;
+}
+
+.footer-reset-link {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  background: none;
+  font: inherit;
+  font-size: 12px;
+  color: rgba(160, 195, 225, 0.45);
+  text-decoration: underline;
+  text-decoration-color: rgba(160, 195, 225, 0.25);
+  text-underline-offset: 3px;
+  cursor: pointer;
+}
+
+.footer-reset-link:hover:not(:disabled) {
+  color: rgba(180, 215, 245, 0.65);
+  text-decoration-color: rgba(180, 215, 245, 0.4);
+}
+
+.footer-reset-link:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  text-decoration: none;
+}
+
+.confirm-dialog-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1000000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: rgba(2, 10, 18, 0.72);
+  backdrop-filter: blur(4px);
+}
+
+.confirm-dialog {
+  width: min(420px, 100%);
+  border-radius: 16px;
+  border: 1px solid rgba(145, 198, 255, 0.22);
+  background: rgba(8, 24, 39, 0.96);
+  box-shadow: 0 24px 60px rgba(1, 8, 16, 0.55);
+  padding: 20px 22px 18px;
+  color: #e8f4ff;
+}
+
+.confirm-dialog-title {
+  margin: 0 0 10px;
+  font-size: 20px;
+  font-weight: 700;
+}
+
+.confirm-dialog-body {
+  margin: 0 0 18px;
+  font-size: 14px;
+  line-height: 1.45;
+  color: rgba(220, 240, 255, 0.88);
+}
+
+.confirm-dialog-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.confirm-dialog-btn {
+  border-radius: 10px;
+  padding: 9px 16px;
+  font-size: 14px;
+  font-weight: 650;
+  cursor: pointer;
+  border: 1px solid transparent;
+}
+
+.confirm-dialog-btn:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.confirm-dialog-btn-secondary {
+  color: #c7e8ff;
+  background: rgba(12, 40, 62, 0.65);
+  border-color: rgba(150, 200, 255, 0.35);
+}
+
+.confirm-dialog-btn-secondary:hover:not(:disabled) {
+  background: rgba(18, 52, 78, 0.75);
+}
+
+.confirm-dialog-btn-danger {
+  color: #041323;
+  background: linear-gradient(135deg, #ffb199, #ff7a6b);
+  border-color: rgba(255, 200, 180, 0.5);
+}
+
+.confirm-dialog-btn-danger:hover:not(:disabled) {
+  filter: brightness(1.05);
 }
 
 .stats-grid {

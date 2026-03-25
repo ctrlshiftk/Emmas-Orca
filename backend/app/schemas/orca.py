@@ -10,8 +10,7 @@ class OrcaProfileOut(BaseModel):
     description: str | None = None
 
 
-class SetFriendOrcaIn(BaseModel):
-    user_name: str = "demo"
+class SetFriendOrcaChoiceIn(BaseModel):
     orca_profile_id: int
 
 

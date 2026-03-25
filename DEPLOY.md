@@ -26,6 +26,10 @@ Environment variables:
 - `SIGHTINGS_SOURCE_URL` (only if HTML ingest enabled)
 - `CORS_ORIGINS`
 
+## Friend orca choice
+
+The app stores **one** chosen `orca_profile_id` in the `friend_choice` table (singleton row `id = 1`). The welcome screen appears when no choice is set yet.
+
 ## Cloud deployment shape
 
 - Deploy backend container to a service like Render, Fly.io, or Railway.

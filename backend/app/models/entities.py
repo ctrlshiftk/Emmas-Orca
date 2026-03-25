@@ -34,6 +34,19 @@ class UserFriendOrca(Base):
     orca_profile: Mapped[OrcaProfile] = relationship()
 
 
+class FriendChoice(Base):
+    """Singleton row (id=1): which orca the app tracks for the single recipient."""
+
+    __tablename__ = "friend_choice"
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True)
+    orca_profile_id: Mapped[int | None] = mapped_column(
+        Integer, ForeignKey("orca_profiles.id"), nullable=True
+    )
+
+    orca_profile: Mapped[OrcaProfile | None] = relationship()
+
+
 class Sighting(Base):
     __tablename__ = "sightings"
 

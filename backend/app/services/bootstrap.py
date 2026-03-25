@@ -1,7 +1,7 @@
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
-from app.models.entities import OrcaProfile, User
+from app.models.entities import FriendChoice, OrcaProfile
 
 
 SEED_ORCAS = [
@@ -13,8 +13,8 @@ SEED_ORCAS = [
 
 
 def ensure_seed_data(db: Session) -> None:
-    if not db.scalar(select(User).where(User.name == "demo")):
-        db.add(User(name="demo"))
+    if db.get(FriendChoice, 1) is None:
+        db.add(FriendChoice(id=1, orca_profile_id=None))
 
     existing = set(db.scalars(select(OrcaProfile.display_name)).all())
     for name, pod, desc in SEED_ORCAS:

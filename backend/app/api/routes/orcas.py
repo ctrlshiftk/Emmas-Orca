@@ -5,8 +5,13 @@ from sqlalchemy import select
 from sqlalchemy.orm import Session
 
 from app.api.deps import get_db
-from app.models.entities import OrcaProfile, Sighting, User, UserFriendOrca
-from app.schemas.orca import FriendOrcaJourneyOut, JourneyPoint, OrcaProfileOut, SetFriendOrcaIn
+from app.models.entities import FriendChoice, OrcaProfile, Sighting
+from app.schemas.orca import (
+    FriendOrcaJourneyOut,
+    JourneyPoint,
+    OrcaProfileOut,
+    SetFriendOrcaChoiceIn,
+)
 
 router = APIRouter(prefix="/api", tags=["orcas"])
 KNOWN_TAGS = {
@@ -33,7 +38,6 @@ def _row_tags(row: Sighting) -> set[str]:
         if isinstance(tag, str) and tag in KNOWN_TAGS:
             tags.add(tag)
 
-    # Backward compatibility: rows ingested before normalized_tags.
     raw_tags = payload.get("tags") or []
     for tag in raw_tags:
         if isinstance(tag, str):
@@ -49,54 +53,22 @@ def _row_tags(row: Sighting) -> set[str]:
     return tags
 
 
-@router.get("/orcas", response_model=list[OrcaProfileOut])
-def list_orcas(db: Session = Depends(get_db)) -> list[OrcaProfileOut]:
-    rows = db.scalars(select(OrcaProfile).order_by(OrcaProfile.display_name)).all()
-    return [OrcaProfileOut.model_validate(r, from_attributes=True) for r in rows]
+def _get_singleton_choice(db: Session) -> FriendChoice:
+    row = db.get(FriendChoice, 1)
+    if row is None:
+        row = FriendChoice(id=1, orca_profile_id=None)
+        db.add(row)
+        db.commit()
+        db.refresh(row)
+    return row
 
 
-@router.post("/me/friend-orca")
-def set_friend_orca(payload: SetFriendOrcaIn, db: Session = Depends(get_db)) -> dict:
-    user = db.scalar(select(User).where(User.name == payload.user_name))
-    if not user:
-        user = User(name=payload.user_name)
-        db.add(user)
-        db.flush()
-
-    orca = db.get(OrcaProfile, payload.orca_profile_id)
-    if not orca:
-        raise HTTPException(status_code=404, detail="Orca profile not found")
-
-    rel = db.scalar(select(UserFriendOrca).where(UserFriendOrca.user_id == user.id))
-    if not rel:
-        rel = UserFriendOrca(user_id=user.id, orca_profile_id=orca.id)
-        db.add(rel)
-    else:
-        rel.orca_profile_id = orca.id
-
-    db.commit()
-    return {"status": "ok", "friend_orca_id": orca.id}
-
-
-@router.get("/me/friend-orca/journey", response_model=FriendOrcaJourneyOut)
-def get_journey(
-    user_name: str = Query(default="demo"),
-    from_date: datetime | None = Query(default=None, alias="from"),
-    to_date: datetime | None = Query(default=None, alias="to"),
-    db: Session = Depends(get_db),
+def _build_journey_out(
+    db: Session,
+    orca: OrcaProfile,
+    from_date: datetime | None,
+    to_date: datetime | None,
 ) -> FriendOrcaJourneyOut:
-    user = db.scalar(select(User).where(User.name == user_name))
-    if not user:
-        raise HTTPException(status_code=404, detail="User not found")
-
-    rel = db.scalar(select(UserFriendOrca).where(UserFriendOrca.user_id == user.id))
-    if not rel:
-        raise HTTPException(status_code=404, detail="Friend orca not set")
-
-    orca = db.get(OrcaProfile, rel.orca_profile_id)
-    if not orca:
-        raise HTTPException(status_code=404, detail="Friend orca profile missing")
-
     q = select(Sighting)
     if from_date:
         q = q.where(Sighting.observed_at >= from_date)
@@ -127,3 +99,48 @@ def get_journey(
             for p in points
         ],
     )
+
+
+@router.get("/orcas", response_model=list[OrcaProfileOut])
+def list_orcas(db: Session = Depends(get_db)) -> list[OrcaProfileOut]:
+    rows = db.scalars(select(OrcaProfile).order_by(OrcaProfile.display_name)).all()
+    return [OrcaProfileOut.model_validate(r, from_attributes=True) for r in rows]
+
+
+@router.post("/friend-orca")
+def set_friend_orca_choice(payload: SetFriendOrcaChoiceIn, db: Session = Depends(get_db)) -> dict:
+    orca = db.get(OrcaProfile, payload.orca_profile_id)
+    if not orca:
+        raise HTTPException(status_code=404, detail="Orca profile not found")
+
+    choice = _get_singleton_choice(db)
+    if choice.orca_profile_id is not None:
+        raise HTTPException(status_code=409, detail="Friend orca already set.")
+    choice.orca_profile_id = orca.id
+    db.commit()
+    return {"status": "ok", "friend_orca_id": orca.id}
+
+
+@router.delete("/friend-orca")
+def clear_friend_orca_choice(db: Session = Depends(get_db)) -> dict:
+    choice = _get_singleton_choice(db)
+    choice.orca_profile_id = None
+    db.commit()
+    return {"status": "ok"}
+
+
+@router.get("/friend-orca/journey", response_model=FriendOrcaJourneyOut)
+def get_friend_orca_journey(
+    from_date: datetime | None = Query(default=None, alias="from"),
+    to_date: datetime | None = Query(default=None, alias="to"),
+    db: Session = Depends(get_db),
+) -> FriendOrcaJourneyOut:
+    choice = _get_singleton_choice(db)
+    if choice.orca_profile_id is None:
+        raise HTTPException(status_code=404, detail="Friend orca not set")
+
+    orca = db.get(OrcaProfile, choice.orca_profile_id)
+    if not orca:
+        raise HTTPException(status_code=404, detail="Friend orca profile missing")
+
+    return _build_journey_out(db, orca, from_date, to_date)
