@@ -35,7 +35,7 @@ export function JourneyMap({ points }: Props) {
   return (
     <MapContainer center={center} zoom={7} style={{ height: "100%", width: "100%" }}>
       <TileLayer
-        attribution='Tiles &copy; Esri — Source: Esri, Maxar, Earthstar Geographics'
+        attribution='Kacheln &copy; Esri — Quelle: Esri, Maxar, Earthstar Geographics'
         url="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
       />
       {segments.map((segment) => {
@@ -57,8 +57,8 @@ export function JourneyMap({ points }: Props) {
         <Pane name="journeyHead" style={{ zIndex: 620 }}>
           <Marker position={[latest.lat, latest.lng]} icon={headMarkerIcon}>
             <Popup>
-              {new Date(latest.observed_at).toLocaleString()} | confidence{" "}
-              {(latest.confidence * 100).toFixed(0)}%
+              {new Date(latest.observed_at).toLocaleString("de-DE")} · Verlässlichkeit{" "}
+              {(latest.confidence * 100).toFixed(0)}&nbsp;%
             </Popup>
           </Marker>
         </Pane>

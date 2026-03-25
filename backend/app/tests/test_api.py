@@ -14,6 +14,7 @@ def _clear_friend_choice() -> None:
         row = db.get(FriendChoice, 1)
         if row is not None:
             row.orca_profile_id = None
+            row.friend_nickname = None
             db.commit()
 
 
@@ -32,6 +33,20 @@ def test_journey_404_when_friend_orca_not_set():
         assert resp.json()["detail"] == "Friend orca not set"
 
 
+def test_friend_nickname_returned_on_journey():
+    _clear_friend_choice()
+    with TestClient(app) as client:
+        first_id = client.get("/api/orcas").json()[0]["id"]
+        set_resp = client.post(
+            "/api/friend-orca",
+            json={"orca_profile_id": first_id, "friend_nickname": "Star"},
+        )
+        assert set_resp.status_code == 200
+        journey = client.get("/api/friend-orca/journey")
+        assert journey.status_code == 200
+        assert journey.json().get("friend_nickname") == "Star"
+
+
 def test_can_set_friend_orca_and_read_journey():
     _clear_friend_choice()
     with TestClient(app) as client:
@@ -41,7 +56,7 @@ def test_can_set_friend_orca_and_read_journey():
 
         set_resp = client.post(
             "/api/friend-orca",
-            json={"orca_profile_id": first_id},
+            json={"orca_profile_id": first_id, "friend_nickname": "Testy"},
         )
         assert set_resp.status_code == 200
 
@@ -149,7 +164,7 @@ def test_journey_uses_strict_explicit_pod_tags():
 
         set_j = client.post(
             "/api/friend-orca",
-            json={"orca_profile_id": j_orca_id},
+            json={"orca_profile_id": j_orca_id, "friend_nickname": "JTest"},
         )
         assert set_j.status_code == 200
         j_journey = client.get(
@@ -165,7 +180,7 @@ def test_journey_uses_strict_explicit_pod_tags():
         _clear_friend_choice()
         set_b = client.post(
             "/api/friend-orca",
-            json={"orca_profile_id": biggs_orca_id},
+            json={"orca_profile_id": biggs_orca_id, "friend_nickname": "BiggsTest"},
         )
         assert set_b.status_code == 200
         b_journey = client.get(
@@ -177,6 +192,19 @@ def test_journey_uses_strict_explicit_pod_tags():
         assert all("J-only" not in (p.get("notes") or "") for p in b_points)
 
 
+def test_post_friend_orca_requires_nickname():
+    _clear_friend_choice()
+    with TestClient(app) as client:
+        first_id = client.get("/api/orcas").json()[0]["id"]
+        missing = client.post("/api/friend-orca", json={"orca_profile_id": first_id})
+        assert missing.status_code == 422
+        empty = client.post(
+            "/api/friend-orca",
+            json={"orca_profile_id": first_id, "friend_nickname": "   "},
+        )
+        assert empty.status_code == 422
+
+
 def test_post_friend_orca_rejects_when_already_set():
     _clear_friend_choice()
     with TestClient(app) as client:
@@ -184,8 +212,17 @@ def test_post_friend_orca_rejects_when_already_set():
         assert len(orcas) >= 1
         first_id = orcas[0]["id"]
         second_id = orcas[1]["id"] if len(orcas) > 1 else first_id
-        assert client.post("/api/friend-orca", json={"orca_profile_id": first_id}).status_code == 200
-        again = client.post("/api/friend-orca", json={"orca_profile_id": second_id})
+        assert (
+            client.post(
+                "/api/friend-orca",
+                json={"orca_profile_id": first_id, "friend_nickname": "A"},
+            ).status_code
+            == 200
+        )
+        again = client.post(
+            "/api/friend-orca",
+            json={"orca_profile_id": second_id, "friend_nickname": "B"},
+        )
         assert again.status_code == 409
         assert "already set" in again.json()["detail"]
 
@@ -195,12 +232,24 @@ def test_delete_friend_orca_clears_choice_and_allows_new_set():
     with TestClient(app) as client:
         orcas = client.get("/api/orcas").json()
         first_id = orcas[0]["id"]
-        assert client.post("/api/friend-orca", json={"orca_profile_id": first_id}).status_code == 200
+        assert (
+            client.post(
+                "/api/friend-orca",
+                json={"orca_profile_id": first_id, "friend_nickname": "Redo"},
+            ).status_code
+            == 200
+        )
         del_resp = client.delete("/api/friend-orca")
         assert del_resp.status_code == 200
         assert del_resp.json()["status"] == "ok"
         assert client.get("/api/friend-orca/journey").status_code == 404
-        assert client.post("/api/friend-orca", json={"orca_profile_id": first_id}).status_code == 200
+        assert (
+            client.post(
+                "/api/friend-orca",
+                json={"orca_profile_id": first_id, "friend_nickname": "Again"},
+            ).status_code
+            == 200
+        )
 
 
 def test_delete_friend_orca_idempotent_when_not_set():

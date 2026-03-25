@@ -43,6 +43,7 @@ class FriendChoice(Base):
     orca_profile_id: Mapped[int | None] = mapped_column(
         Integer, ForeignKey("orca_profiles.id"), nullable=True
     )
+    friend_nickname: Mapped[str | None] = mapped_column(String(128), nullable=True)
 
     orca_profile: Mapped[OrcaProfile | None] = relationship()
 

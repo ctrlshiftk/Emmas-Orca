@@ -16,5 +16,6 @@ export type JourneyPoint = {
 
 export type JourneyResponse = {
   orca: OrcaProfile;
+  friend_nickname?: string | null;
   points: JourneyPoint[];
 };

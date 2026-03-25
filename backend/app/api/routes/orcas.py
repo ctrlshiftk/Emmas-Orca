@@ -68,6 +68,7 @@ def _build_journey_out(
     orca: OrcaProfile,
     from_date: datetime | None,
     to_date: datetime | None,
+    friend_nickname: str | None = None,
 ) -> FriendOrcaJourneyOut:
     q = select(Sighting)
     if from_date:
@@ -87,6 +88,7 @@ def _build_journey_out(
 
     return FriendOrcaJourneyOut(
         orca=OrcaProfileOut.model_validate(orca, from_attributes=True),
+        friend_nickname=friend_nickname,
         points=[
             JourneyPoint(
                 observed_at=p.observed_at,
@@ -117,6 +119,7 @@ def set_friend_orca_choice(payload: SetFriendOrcaChoiceIn, db: Session = Depends
     if choice.orca_profile_id is not None:
         raise HTTPException(status_code=409, detail="Friend orca already set.")
     choice.orca_profile_id = orca.id
+    choice.friend_nickname = payload.friend_nickname
     db.commit()
     return {"status": "ok", "friend_orca_id": orca.id}
 
@@ -125,6 +128,7 @@ def set_friend_orca_choice(payload: SetFriendOrcaChoiceIn, db: Session = Depends
 def clear_friend_orca_choice(db: Session = Depends(get_db)) -> dict:
     choice = _get_singleton_choice(db)
     choice.orca_profile_id = None
+    choice.friend_nickname = None
     db.commit()
     return {"status": "ok"}
 
@@ -143,4 +147,4 @@ def get_friend_orca_journey(
     if not orca:
         raise HTTPException(status_code=404, detail="Friend orca profile missing")
 
-    return _build_journey_out(db, orca, from_date, to_date)
+    return _build_journey_out(db, orca, from_date, to_date, friend_nickname=choice.friend_nickname)

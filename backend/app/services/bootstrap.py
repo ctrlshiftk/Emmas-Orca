@@ -5,10 +5,10 @@ from app.models.entities import FriendChoice, OrcaProfile
 
 
 SEED_ORCAS = [
-    ("Tahlequah (J35)", "J Pod", "Southern Resident known individual."),
-    ("Luna", "L Pod", "Community-favorite orca profile for demo."),
-    ("Kiki", "K Pod", "Demo profile when IDs are uncertain."),
-    ("Bigg Scout", "Bigg's Killer Whales", "Profile inferred from Bigg's-tagged encounters."),
+    ("Oreo (J22)", "J Pod", "Hat nen coolen Namen."),
+    ("Coho (L108)", "L Pod", "Sein kleiner Bruder heisst Keta."),
+    ("Nova (J51)", "J Pod", "Hat die jüngste Mutter überhaupt."),
+    ("Kelp (K42)", "K Pod", "Sein Bruder ist verloren gegangen :("),
 ]
 
 

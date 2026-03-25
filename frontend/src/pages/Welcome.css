@@ -117,6 +117,46 @@
   color: #3f6e95;
 }
 
+.welcome-nickname-field {
+  margin: 0 0 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.welcome-nickname-field label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #2b5a82;
+}
+
+.welcome-nickname-input {
+  border-radius: 10px;
+  border: 1px solid rgba(120, 188, 240, 0.45);
+  padding: 10px 12px;
+  font-size: 15px;
+  color: #193347;
+  background: rgba(255, 255, 255, 0.95);
+}
+
+.welcome-nickname-input:focus {
+  outline: none;
+  border-color: rgba(46, 140, 210, 0.75);
+  box-shadow: 0 0 0 2px rgba(70, 180, 235, 0.2);
+}
+
+.welcome-nickname-preview-block {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.welcome-nickname-preview {
+  margin: 0;
+  font-size: 13px;
+  color: #3f6e95;
+}
+
 .welcome-cta {
   width: 100%;
   border: 0;

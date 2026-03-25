@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { JourneyMap } from "../components/map/JourneyMap";
 import type { JourneyPoint, JourneyResponse } from "../types";
+import { friendSummaryLabel, journeyHeadingName } from "../utils/friendDisplayName";
 
 type AppProps = {
   initialJourney: JourneyResponse;
@@ -55,7 +56,7 @@ function FloatingOrca() {
   return (
     <img
       src={ORCA_GIF_URL}
-      alt="Floating orca"
+      alt="Schwertwal (Deko)"
       style={{
         position: "fixed",
         left: 0,
@@ -81,12 +82,25 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
   const [resetError, setResetError] = useState<string | null>(null);
 
   const friendOrca = initialJourney.orca;
+  const friendSummary = friendSummaryLabel(friendOrca.display_name, initialJourney.friend_nickname);
+  const journeyName = journeyHeadingName(friendOrca.display_name, initialJourney.friend_nickname);
+  const pageTitle =
+    /s$/i.test(journeyName)
+      ? `${journeyName}' Reise`
+      : `${journeyName}s Reise`;
 
   useEffect(() => {
     setPoints(initialJourney.points);
     setPlayhead(lastPointIndex(initialJourney.points));
     setPlaying(false);
   }, [initialJourney]);
+
+  useEffect(() => {
+    document.title = pageTitle;
+    return () => {
+      document.title = "Emmas Orca";
+    };
+  }, [pageTitle]);
 
   const shownPoints = useMemo(() => {
     if (!points.length) return [];
@@ -124,7 +138,7 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
     try {
       await onResetFriendChoice();
     } catch {
-      setResetError("Could not reset your choice. Try again.");
+      setResetError("Die Auswahl konnte nicht zurückgesetzt werden. Bitte erneut versuchen.");
     } finally {
       setResetting(false);
     }
@@ -147,11 +161,10 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
             onClick={(e) => e.stopPropagation()}
           >
             <h2 id="reset-friend-title" className="confirm-dialog-title">
-              Reset friend orca?
+              Orca zurücksetzen?
             </h2>
             <p className="confirm-dialog-body">
-              You’ll return to the welcome screen and can pick a different orca. This clears your current
-              choice on the server.
+              Du kehrst zum Welcome Screen zurück und kannst einen anderen Orca wählen. Achtung: alle bisherigen Daten werden gelöscht!
             </p>
             <div className="confirm-dialog-actions">
               <button
@@ -160,7 +173,7 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
                 disabled={resetting}
                 onClick={() => setConfirmResetOpen(false)}
               >
-                Cancel
+                Abbrechen
               </button>
               <button
                 type="button"
@@ -168,7 +181,7 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
                 disabled={resetting}
                 onClick={() => void handleConfirmReset()}
               >
-                Reset choice
+                Zurücksetzen
               </button>
             </div>
           </div>
@@ -178,39 +191,41 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
         <header className="hero-card">
           <div>
             <p className="eyebrow">Emmas Orca</p>
-            <h1>Track your pod journey</h1>
-            <p className="muted">Explore sightings over time with a satellite map playback.</p>
+            <h1>{pageTitle}</h1>
+            <p className="muted">Hier kannst du die Route von {journeyName} auf der Karte verfolgen.</p>
             <p className="muted subtle-footnote">
-              Your friend orca was set when you first opened the site—it stays the same on every device.
+              Dein Orca-Freund wurde beim ersten Besuch gewählt und bleibt auf allen Geräten gleich.
             </p>
           </div>
           <div className="friend-orca-summary">
-            <p className="friend-orca-summary-label">Your friend orca</p>
-            <p className="friend-orca-summary-name">{friendOrca.display_name}</p>
-            <p className="friend-orca-summary-pod">{friendOrca.pod ?? "Unknown pod"}</p>
+            <p className="friend-orca-summary-label">Dein Orca-Freund</p>
+            <p className="friend-orca-summary-name">{friendSummary}</p>
+            <p className="friend-orca-summary-pod">{friendOrca.pod ?? "Unbekannte Gruppe"}</p>
           </div>
         </header>
 
         <section className="stats-grid">
           <article className="stat-card">
-            <p className="label">Distance traveled</p>
+            <p className="label">Zurückgelegte Distanz</p>
             <p className="value">{traveledKm.toFixed(1)} km</p>
-            <p className="subtle">estimated route length</p>
+            <p className="subtle">sehr sehr grob geschätzt</p>
           </article>
           <article className="stat-card">
-            <p className="label">Sightings shown</p>
+            <p className="label">Angezeigte Sightings</p>
             <p className="value">
               {shownPoints.length} / {points.length}
             </p>
-            <p className="subtle">timeline-filtered points</p>
+            <p className="subtle">nach Timeline gefiltert</p>
           </article>
           <article className="stat-card">
-            <p className="label">Latest confidence</p>
+            <p className="label">Confidence</p>
             <p className="value">
               {latestPoint ? `${(latestPoint.confidence * 100).toFixed(0)}%` : "—"}
             </p>
             <p className="subtle">
-              {latestPoint ? new Date(latestPoint.observed_at).toLocaleString() : "no data yet"}
+              {latestPoint
+                ? new Date(latestPoint.observed_at).toLocaleString("de-DE")
+                : "noch keine Daten"}
             </p>
           </article>
         </section>
@@ -221,14 +236,14 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
 
         <section className="timeline-panel">
           <div className="timeline-header">
-            <label htmlFor="playhead">Timeline playback</label>
+            <label htmlFor="playhead">Timeline</label>
             <button
               type="button"
               className="play-button"
               onClick={() => setPlaying((v) => !v)}
               disabled={points.length < 2}
             >
-              {playing ? "Pause" : "Play"}
+              {playing ? "Pause" : "Abspielen"}
             </button>
           </div>
           <input
@@ -253,7 +268,7 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
             disabled={resetting}
             onClick={() => setConfirmResetOpen(true)}
           >
-            {resetting ? "Resetting…" : "Change friend orca"}
+            {resetting ? "Wird zurückgesetzt…" : "Zurücksetzen"}
           </button>
         </footer>
       </main>

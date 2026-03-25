@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { fetchOrcas, setFriendOrca } from "../api/client";
 import type { OrcaProfile } from "../types";
+import { friendSummaryLabel, journeyHeadingName } from "../utils/friendDisplayName";
 import "./Welcome.css";
 
 type Props = {
@@ -14,6 +15,7 @@ export function Welcome({ onComplete }: Props) {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [friendNickname, setFriendNickname] = useState("");
 
   useEffect(() => {
     fetchOrcas()
@@ -21,19 +23,25 @@ export function Welcome({ onComplete }: Props) {
         setOrcas(list);
         if (list.length > 0) setSelectedId(list[0].id);
       })
-      .catch(() => setError("Could not load orcas. Check the API connection."))
+      .catch(() => setError("Orcas konnten nicht geladen werden. Keine API-Verbindung?"))
       .finally(() => setLoading(false));
   }, []);
 
+  const selectedOrca = useMemo(
+    () => orcas.find((o) => o.id === selectedId) ?? null,
+    [orcas, selectedId]
+  );
+
+
   const onContinue = async () => {
-    if (selectedId == null) return;
+    if (selectedId == null || !friendNickname.trim()) return;
     setSaving(true);
     setError(null);
     try {
-      await setFriendOrca(selectedId);
+      await setFriendOrca(selectedId, friendNickname);
       onComplete();
     } catch {
-      setError("Could not save your choice. Try again.");
+      setError("Die Auswahl konnte nicht gespeichert werden. Bitte erneut versuchen.");
     } finally {
       setSaving(false);
     }
@@ -43,15 +51,15 @@ export function Welcome({ onComplete }: Props) {
     <main className="welcome-shell">
       <div className="welcome-card">
         <p className="welcome-eyebrow">Emmas Orca</p>
-        <h1 className="welcome-title">Choose your friend orca</h1>
+        <h1 className="welcome-title">Hallo Emmer! 👋</h1>
         <p className="welcome-lead">
-          Pick the orca you want to follow. This is saved for you on every device—no sign-in needed.
+          Hier kannst du dir einen Orca aussuchen, den du auf seiner Reise begleiten kannst.
         </p>
 
         {error && <p className="welcome-error">{error}</p>}
 
         {loading ? (
-          <p className="welcome-muted">Loading orcas…</p>
+          <p className="welcome-muted">Orcas werden geladen…</p>
         ) : (
           <ul className="welcome-list">
             {orcas.map((o) => (
@@ -65,7 +73,7 @@ export function Welcome({ onComplete }: Props) {
                   />
                   <span className="welcome-option-body">
                     <span className="welcome-option-name">{o.display_name}</span>
-                    <span className="welcome-option-pod">{o.pod ?? "Unknown pod"}</span>
+                    <span className="welcome-option-pod">{o.pod ?? "Unbekannte Gruppe"}</span>
                   </span>
                 </label>
               </li>
@@ -73,13 +81,35 @@ export function Welcome({ onComplete }: Props) {
           </ul>
         )}
 
+        {!loading && orcas.length > 0 && (
+          <div className="welcome-nickname-field">
+            <label htmlFor="friend-nickname">
+              Spitzname <span aria-hidden="true">*</span>
+            </label>
+            <input
+              id="friend-nickname"
+              type="text"
+              className="welcome-nickname-input"
+              placeholder=""
+              maxLength={128}
+              required
+              aria-required="true"
+              value={friendNickname}
+              onChange={(e) => setFriendNickname(e.target.value)}
+              autoComplete="off"
+            />
+          </div>
+        )}
+
         <button
           type="button"
           className="welcome-cta"
-          disabled={loading || saving || selectedId == null || !orcas.length}
+          disabled={
+            loading || saving || selectedId == null || !orcas.length || !friendNickname.trim()
+          }
           onClick={() => void onContinue()}
         >
-          {saving ? "Saving…" : "Continue"}
+          {saving ? "Wird gespeichert…" : "Weiter"}
         </button>
       </div>
     </main>

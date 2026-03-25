@@ -9,7 +9,7 @@ export type BootstrapJourneyResult =
 
 export async function fetchOrcas(): Promise<OrcaProfile[]> {
   const resp = await fetch(`${API_BASE}/orcas`);
-  if (!resp.ok) throw new Error("Failed to fetch orcas");
+  if (!resp.ok) throw new Error("Orcas konnten nicht geladen werden");
   return resp.json();
 }
 
@@ -33,26 +33,29 @@ export async function bootstrapJourney(): Promise<BootstrapJourneyResult> {
   }
   return {
     ok: false,
-    error: new Error(`Failed to load journey (${resp.status})`),
+    error: new Error(`Route konnte nicht geladen werden (${resp.status})`),
   };
 }
 
-export async function setFriendOrca(orcaProfileId: number): Promise<void> {
+export async function setFriendOrca(orcaProfileId: number, friendNickname: string): Promise<void> {
+  const trimmed = friendNickname.trim();
+  if (!trimmed) throw new Error("Spitzname fehlt");
+  const body = { orca_profile_id: orcaProfileId, friend_nickname: trimmed };
   const resp = await fetch(`${API_BASE}/friend-orca`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ orca_profile_id: orcaProfileId }),
+    body: JSON.stringify(body),
   });
-  if (!resp.ok) throw new Error("Failed to set friend orca");
+  if (!resp.ok) throw new Error("Freund-Orca konnte nicht gespeichert werden");
 }
 
 export async function resetFriendOrca(): Promise<void> {
   const resp = await fetch(`${API_BASE}/friend-orca`, { method: "DELETE" });
-  if (!resp.ok) throw new Error("Failed to reset friend orca");
+  if (!resp.ok) throw new Error("Freund-Orca konnte nicht zurückgesetzt werden");
 }
 
 export async function fetchJourney(): Promise<JourneyResponse> {
   const resp = await fetch(`${API_BASE}/friend-orca/journey`);
-  if (!resp.ok) throw new Error("Failed to fetch journey");
+  if (!resp.ok) throw new Error("Route konnte nicht geladen werden");
   return resp.json();
 }

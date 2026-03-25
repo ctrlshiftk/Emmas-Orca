@@ -41,7 +41,7 @@ export function AppRoot() {
       setPhase("app");
     } catch (e) {
       console.error(e);
-      setLoadError("Saved, but could not load the journey. Refresh the page.");
+      setLoadError("Gespeichert, aber die Route konnte nicht geladen werden. Bitte die Seite neu laden.");
     }
   };
 
@@ -54,7 +54,7 @@ export function AppRoot() {
   if (phase === "loading") {
     return (
       <div className="app-loading">
-        <p>Loading…</p>
+        <p>Lädt…</p>
       </div>
     );
   }

@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.api.routes.orcas import router as orca_router
 from app.core.config import settings
 from app.db.base import Base
+from app.db.schema_patches import ensure_friend_choice_nickname_column
 from app.db.session import SessionLocal, engine
 from app.ingest.service import run_ingestion
 from app.services.bootstrap import ensure_seed_data
@@ -45,6 +46,7 @@ def _wait_for_db(max_attempts: int = 30, delay_seconds: float = 1.0) -> None:
 def startup() -> None:
     _wait_for_db()
     Base.metadata.create_all(bind=engine)
+    ensure_friend_choice_nickname_column(engine)
     with Session(engine) as db:
         ensure_seed_data(db)
 
