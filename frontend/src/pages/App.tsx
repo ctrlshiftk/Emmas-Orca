@@ -10,6 +10,10 @@ type AppProps = {
 
 const ORCA_GIF_URL = "/orca-floating.png";
 
+function lastPointIndex(points: JourneyPoint[]): number {
+  return Math.max(0, points.length - 1);
+}
+
 function haversineKm(a: JourneyPoint, b: JourneyPoint): number {
   const r = 6371;
   const dLat = ((b.lat - a.lat) * Math.PI) / 180;
@@ -70,7 +74,7 @@ function FloatingOrca() {
 
 export function App({ initialJourney, onResetFriendChoice }: AppProps) {
   const [points, setPoints] = useState<JourneyPoint[]>(initialJourney.points);
-  const [playhead, setPlayhead] = useState(0);
+  const [playhead, setPlayhead] = useState(() => lastPointIndex(initialJourney.points));
   const [playing, setPlaying] = useState(false);
   const [confirmResetOpen, setConfirmResetOpen] = useState(false);
   const [resetting, setResetting] = useState(false);
@@ -80,7 +84,7 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
 
   useEffect(() => {
     setPoints(initialJourney.points);
-    setPlayhead(0);
+    setPlayhead(lastPointIndex(initialJourney.points));
     setPlaying(false);
   }, [initialJourney]);
 
@@ -189,9 +193,9 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
 
         <section className="stats-grid">
           <article className="stat-card">
-            <p className="label">Active profile</p>
-            <p className="value">{friendOrca.display_name}</p>
-            <p className="subtle">{friendOrca.pod ?? "Unknown pod"}</p>
+            <p className="label">Distance traveled</p>
+            <p className="value">{traveledKm.toFixed(1)} km</p>
+            <p className="subtle">estimated route length</p>
           </article>
           <article className="stat-card">
             <p className="label">Sightings shown</p>
@@ -199,11 +203,6 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
               {shownPoints.length} / {points.length}
             </p>
             <p className="subtle">timeline-filtered points</p>
-          </article>
-          <article className="stat-card">
-            <p className="label">Distance traveled</p>
-            <p className="value">{traveledKm.toFixed(1)} km</p>
-            <p className="subtle">estimated route length</p>
           </article>
           <article className="stat-card">
             <p className="label">Latest confidence</p>
