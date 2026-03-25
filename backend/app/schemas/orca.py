@@ -7,6 +7,7 @@ class OrcaProfileOut(BaseModel):
     id: int
     display_name: str
     pod: str | None = None
+    matriline: str | None = None
     description: str | None = None
 
 

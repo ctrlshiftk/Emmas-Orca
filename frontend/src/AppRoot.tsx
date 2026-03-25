@@ -54,7 +54,7 @@ export function AppRoot() {
   if (phase === "loading") {
     return (
       <div className="app-loading">
-        <p>Lädt…</p>
+        <p>Muss noch kurz deinen Orca suchen, warte...</p>
       </div>
     );
   }

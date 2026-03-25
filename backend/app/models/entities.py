@@ -19,6 +19,7 @@ class OrcaProfile(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True)
     display_name: Mapped[str] = mapped_column(String(128), nullable=False)
     pod: Mapped[str | None] = mapped_column(String(64), nullable=True)
+    matriline: Mapped[str | None] = mapped_column(String(64), nullable=True)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
 
 

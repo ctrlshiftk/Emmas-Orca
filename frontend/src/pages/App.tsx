@@ -3,6 +3,7 @@ import { useEffect, useMemo, useState } from "react";
 import { JourneyMap } from "../components/map/JourneyMap";
 import type { JourneyPoint, JourneyResponse } from "../types";
 import { friendSummaryLabel, journeyHeadingName } from "../utils/friendDisplayName";
+import { orcaProfileImageSrc } from "../utils/orcaProfileImage";
 
 type AppProps = {
   initialJourney: JourneyResponse;
@@ -82,6 +83,13 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
   const [resetError, setResetError] = useState<string | null>(null);
 
   const friendOrca = initialJourney.orca;
+  const orcaProfileImage = useMemo(
+    () => orcaProfileImageSrc(friendOrca.display_name),
+    [friendOrca.display_name]
+  );
+  const orcaProfileImageAlt = orcaProfileImage.endsWith(".svg")
+    ? ""
+    : friendOrca.display_name;
   const friendSummary = friendSummaryLabel(friendOrca.display_name, initialJourney.friend_nickname);
   const journeyName = journeyHeadingName(friendOrca.display_name, initialJourney.friend_nickname);
   const pageTitle =
@@ -229,7 +237,6 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
             </p>
           </article>
         </section>
-
         <section className="map-panel">
           <JourneyMap points={shownPoints} />
         </section>
@@ -255,6 +262,37 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
             onChange={(e) => setPlayhead(Number(e.target.value))}
           />
         </section>
+
+        <article className="orca-profile-card" aria-labelledby="orca-profile-heading">
+          <div className="orca-profile-media">
+            <img
+              src={orcaProfileImage}
+              alt={orcaProfileImageAlt}
+              className="orca-profile-image"
+            />
+          </div>
+          <div className="orca-profile-body">
+            <p className="label" id="orca-profile-heading">
+              Mehr über deinen Orca
+            </p>
+            <h2 className="orca-profile-title">{friendOrca.display_name.split(" ")[0] + ' "' + initialJourney.friend_nickname + '" ' + friendOrca.display_name.split(" ")[1]}</h2>
+            <div className="orca-profile-meta">
+              <p className="orca-profile-pod">
+                <span className="orca-profile-pod-label">Gruppe</span>{" "}
+                {friendOrca.pod ?? "Unbekannt"}
+              </p>
+              <p className="orca-profile-matriline">
+                <span className="orca-profile-pod-label">Matriline</span>{" "}
+                {friendOrca.matriline?.trim() ? friendOrca.matriline : "—"}
+              </p>
+            </div>
+            <p className="orca-profile-description">
+              {friendOrca.description?.trim()
+                ? friendOrca.description
+                : "Für diesen Orca liegt noch keine Kurzbeschreibung vor."}
+            </p>
+          </div>
+        </article>
 
         <footer className="app-page-footer">
           {resetError && (

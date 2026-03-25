@@ -298,6 +298,84 @@ body {
   color: rgba(202, 229, 248, 0.82);
 }
 
+.orca-profile-card {
+  margin-top: 14px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  align-items: flex-start;
+  border-radius: 14px;
+  border: 1px solid rgba(155, 206, 255, 0.18);
+  background: rgba(6, 22, 37, 0.76);
+  padding: 18px 20px;
+}
+
+.orca-profile-media {
+  flex: 0 0 auto;
+  width: fit-content;
+  max-width: 100%;
+}
+
+.orca-profile-image {
+  display: block;
+  width: auto;
+  height: auto;
+  max-width: min(460px, 100%);
+  max-height: min(320px, 55vh);
+  border-radius: 12px;
+  border: 1px solid rgba(120, 190, 255, 0.22);
+  background: rgba(4, 14, 26, 0.6);
+}
+
+.orca-profile-body {
+  flex: 1 1 220px;
+  min-width: 0;
+}
+
+.orca-profile-title {
+  margin: 4px 0 6px;
+  font-size: 22px;
+  font-weight: 680;
+  line-height: 1.2;
+  color: #f1f9ff;
+}
+
+.orca-profile-catalog {
+  margin: 0 0 14px;
+  font-size: 13px;
+}
+
+.orca-profile-meta {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px 20px;
+  margin-bottom: 14px;
+}
+
+.orca-profile-pod,
+.orca-profile-matriline {
+  margin: 0;
+  font-size: 15px;
+  color: rgba(220, 240, 255, 0.9);
+}
+
+.orca-profile-pod-label {
+  font-size: 12px;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: rgba(176, 219, 255, 0.75);
+}
+
+.orca-profile-description {
+  margin: 0;
+  font-size: 15px;
+  line-height: 1.55;
+  color: rgba(220, 240, 255, 0.88);
+  max-height: min(42vh, 28rem);
+  overflow-y: auto;
+  padding-right: 6px;
+}
+
 .map-panel {
   margin-top: 14px;
   height: 540px;
@@ -374,5 +452,13 @@ body {
 
   .map-panel {
     height: 430px;
+  }
+
+  .orca-profile-meta {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .orca-profile-image {
+    max-height: min(260px, 50vh);
   }
 }

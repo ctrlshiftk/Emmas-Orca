@@ -73,7 +73,10 @@ export function Welcome({ onComplete }: Props) {
                   />
                   <span className="welcome-option-body">
                     <span className="welcome-option-name">{o.display_name}</span>
-                    <span className="welcome-option-pod">{o.pod ?? "Unbekannte Gruppe"}</span>
+                    <span className="welcome-option-pod">
+                      {o.pod ?? "Unbekannte Gruppe"}
+                      {o.matriline?.trim() ? ` · Matriline ${o.matriline}` : ""}
+                    </span>
                   </span>
                 </label>
               </li>

@@ -2,6 +2,7 @@ export type OrcaProfile = {
   id: number;
   display_name: string;
   pod?: string | null;
+  matriline?: string | null;
   description?: string | null;
 };
 
