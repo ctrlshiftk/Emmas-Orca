@@ -1,3 +1,4 @@
+import logging
 import time
 
 from apscheduler.schedulers.background import BackgroundScheduler
@@ -6,6 +7,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session
+
+logger = logging.getLogger(__name__)
 
 from app.api.routes.orcas import router as orca_router
 from app.core.config import settings
@@ -33,15 +36,27 @@ app.include_router(orca_router)
 
 
 def _wait_for_db(max_attempts: int = 30, delay_seconds: float = 1.0) -> None:
-    """Retry until Postgres accepts connections (handles race after healthcheck)."""
+    """Retry until Postgres accepts connections (handles cold-start / Neon wake-up)."""
     for attempt in range(max_attempts):
         try:
             with engine.connect() as conn:
                 conn.execute(text("SELECT 1"))
+            logger.info("Database connection established")
             return
         except OperationalError:
             if attempt == max_attempts - 1:
+                logger.error(
+                    "Could not connect to database after %d attempts. "
+                    "If using Neon, the compute may still be waking up.",
+                    max_attempts,
+                )
                 raise
+            logger.warning(
+                "Database not ready (attempt %d/%d), retrying in %.1fs…",
+                attempt + 1,
+                max_attempts,
+                delay_seconds,
+            )
             time.sleep(delay_seconds)
 
 
