@@ -200,13 +200,13 @@ export function App({ initialJourney, onResetFriendChoice }: AppProps) {
           <div>
             <p className="eyebrow">Emmas Orca</p>
             <h1>{pageTitle}</h1>
-            <p className="muted">Hier kannst du die Route von {journeyName} auf der Karte verfolgen.</p>
+            <p className="muted">Hier kannst du sehen, wo sich {journeyName} gerade rumtreibt.</p>
             <p className="muted subtle-footnote">
-              Dein Orca-Freund wurde beim ersten Besuch gewählt und bleibt auf allen Geräten gleich.
+                Vielleicht ist er aber auch gerade unterwegs und es dauert noch bisschen, bis man ihn wieder sieht.
             </p>
           </div>
           <div className="friend-orca-summary">
-            <p className="friend-orca-summary-label">Dein Orca-Freund</p>
+            <p className="friend-orca-summary-label">Dein Freund</p>
             <p className="friend-orca-summary-name">{friendSummary}</p>
             <p className="friend-orca-summary-pod">{friendOrca.pod ?? "Unbekannte Gruppe"}</p>
           </div>
